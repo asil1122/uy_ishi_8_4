@@ -1,101 +1,207 @@
-import Image from "next/image";
+"use client";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
+import { TrendingUp } from "lucide-react";
+import React from "react";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Label, Pie, PieChart, XAxis } from "recharts";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const chartData = [
+    { month: "January", desktop: 186, mobile: 80 },
+    { month: "February", desktop: 305, mobile: 200 },
+    { month: "March", desktop: 237, mobile: 120 },
+    { month: "April", desktop: 73, mobile: 190 },
+    { month: "May", desktop: 209, mobile: 130 },
+    { month: "June", desktop: 214, mobile: 140 },
+  ]
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+  const chartConfig = {
+    desktop: {
+      label: "Desktop",
+      color: "#2563eb",
+    },
+    mobile: {
+      label: "Mobile",
+      color: "#60a5fa",
+    },
+  } satisfies ChartConfig
+
+
+
+  const chartConfig2 = {
+    visitors: {
+      label: "Visitors",
+    },
+    chrome: {
+      label: "Chrome",
+      color: "hsl(var(--chart-1))",
+    },
+    safari: {
+      label: "Safari",
+      color: "hsl(var(--chart-2))",
+    },
+    firefox: {
+      label: "Firefox",
+      color: "hsl(var(--chart-3))",
+    },
+    edge: {
+      label: "Edge",
+      color: "hsl(var(--chart-4))",
+    },
+    other: {
+      label: "Other",
+      color: "hsl(var(--chart-5))",
+    },
+  } satisfies ChartConfig
+
+  const chartData2 = [
+    { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
+    { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
+    { browser: "firefox", visitors: 287, fill: "var(--color-firefox)" },
+    { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
+    { browser: "other", visitors: 190, fill: "var(--color-other)" },
+  ]
+
+  const totalVisitors = React.useMemo(() => {
+    return chartData2.reduce((acc, curr) => acc + curr.visitors, 0)
+  }, [])
+
+
+  return (
+    <div>
+      <ChartContainer config={chartConfig} className="min-h-[200px] w-[300px]">
+        <BarChart accessibilityLayer data={chartData}>
+          <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+          <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+        </BarChart>
+      </ChartContainer>
+      <Card className="flex flex-col">
+        <CardHeader className="items-center pb-0">
+          <CardTitle>Pie Chart - Donut with Text</CardTitle>
+          <CardDescription>January - June 2024</CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 pb-0">
+          <ChartContainer
+            config={chartConfig2}
+            className="mx-auto aspect-square max-h-[250px]"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+            <PieChart>
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Pie
+                data={chartData2}
+                dataKey="visitors"
+                nameKey="browser"
+                innerRadius={60}
+                strokeWidth={5}
+              >
+                <Label
+                  content={({ viewBox }) => {
+                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                      return (
+                        <text
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                        >
+                          <tspan
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            className="fill-foreground text-3xl font-bold"
+                          >
+                            {totalVisitors.toLocaleString()}
+                          </tspan>
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy || 0) + 24}
+                            className="fill-muted-foreground"
+                          >
+                            Visitors
+                          </tspan>
+                        </text>
+                      )
+                    }
+                  }}
+                />
+              </Pie>
+            </PieChart>
+          </ChartContainer>
+        </CardContent>
+        <CardFooter className="flex-col gap-2 text-sm">
+          <div className="flex items-center gap-2 font-medium leading-none">
+            Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+          </div>
+          <div className="leading-none text-muted-foreground">
+            Showing total visitors for the last 6 months
+          </div>
+        </CardFooter>
+      </Card>
+      <Card>
+      <CardHeader>
+        <CardTitle>Area Chart - Stacked</CardTitle>
+        <CardDescription>
+          Showing total visitors for the last 6 months
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <AreaChart
+            accessibilityLayer
+            data={chartData}
+            margin={{
+              left: 12,
+              right: 12,
+            }}
+          >
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="month"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickFormatter={(value) => value.slice(0, 3)}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent indicator="dot" />}
+            />
+            <Area
+              dataKey="mobile"
+              type="natural"
+              fill="var(--color-mobile)"
+              fillOpacity={0.4}
+              stroke="var(--color-mobile)"
+              stackId="a"
+            />
+            <Area
+              dataKey="desktop"
+              type="natural"
+              fill="var(--color-desktop)"
+              fillOpacity={0.4}
+              stroke="var(--color-desktop)"
+              stackId="a"
+            />
+          </AreaChart>
+        </ChartContainer>
+      </CardContent>
+      <CardFooter>
+        <div className="flex w-full items-start gap-2 text-sm">
+          <div className="grid gap-2">
+            <div className="flex items-center gap-2 font-medium leading-none">
+              Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+            </div>
+            <div className="flex items-center gap-2 leading-none text-muted-foreground">
+              January - June 2024
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </CardFooter>
+    </Card>
     </div>
   );
 }
+
